@@ -1,0 +1,149 @@
+---
+title: "exercise_1"
+author: "Jacob T. Fisher & Winson Peng"
+format: html
+editor: visual
+---
+
+# Quarto
+
+Quarto is an open-source scientific and technical publishing system built on Pandoc.
+
+It's designed for computational documents and supports executable code in various programming languages.
+
+Quarto documents allow you to seamlessly integrate text, code, and output (such as graphs and tables) in a single document.
+
+This makes Quarto an excellent choice for data analysis, scientific research, and interactive tutorials in R and other languages.
+
+# Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+# Week 2 Exercise 1
+
+First, we'll figure out which folder we're in by using the `getwd()` command.\
+\
+Note that using GitHub Codespaces makes this pretty simple for us, but if you're using your local environment (i.e. working directly with files on your own computer) you'll need to be sure that you're in the correct folder, or your R scripts won't be able to find your data files.
+
+```{r}
+getwd()
+```
+
+## Exploring Variables and Data Types
+
+In R, `variables` are used to store data that can be text, numbers, or more complex data structures.
+
+The data type of the variable (i.e., `numeric`, `character`, `logical` etc) determines what operations can be performed with the variable.
+
+Here, we start by assigning a text string to a variable `A` and then displaying its content.
+
+```{r}
+A <- "Spartans love R"
+print(A)
+```
+
+Note that variables can be overwritten with new content at any time. This is powerful, and allows for a lot of flexibility, but you always need to be careful that you're not accidentally overwriting a variable without noticing. Let's assign a new value to the `A` variable.
+
+```{r}
+A <- "R is loved by Spartans"
+print(A)
+```
+
+Like I noted earlier, variables can be used to hold different types of data. It's important to consider the type of data stored in a variable, or you might run into unexpected errors. Let's demonstrate this now, by creating a new variable, `B` that stores a `numeric` value, then try to combine it with `A` using the command.
+
+```{r}
+B <- 42
+
+message <- A + B
+```
+
+This error gets raised when you try to use `character` type data with a mathematical operator like `+`. To get around this, we can use a function like `paste()` that converts non-character data under the hood.
+
+```{r}
+message <- paste(A,B)
+print(message)
+```
+
+## Basic Operations in `R`
+
+Now let's move on to some basic mathematical operations in `R` . Operators like `+` (add), `-` (subtract) `*` (multiply) and `/` (divide) allow you to perform arithmetic calculations on numbers. For instance, `2 + 2` will give you 4, and `10 / 2` will return 5. These operators form the foundation of more complex operations and functions in R.
+
+You can also work with data in `R` using functions. One of the most powerful aspects of `R` is its built in functions and a vast library of additional functions written by `R` developers. Let's start with one of the simplest functions: `mean()` . This function calculates the average value of a numeric vector. To compute the mean of the numbers 1 through 10:
+
+```{r}
+mean(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+```
+
+Note that vectors in `R` are formatted as a list of numbers inside of a set of parentheses, with a lowercase letter `c` (short for `combine`) added before the opening parentheses. You can also create vectors in other ways. One of the most common is to use the `:` operator, which is shorthand for "all of the numbers between the number before the `:` and the number after the `:`. Let's use that syntax below.
+
+Now let's assign the output of that operation to a new variable, `C`
+
+```{r}
+C <- mean(1:10)
+print(C)
+```
+
+### Matrices and DataFrames
+
+Although you'll likely work with individual variables quite frequently, most of the operations that you'll be doing in `R` will involve structured sets of data rather than just individual items. R has a few different data structures for dealing with multiple data points. Two of the most common are `matrices` and `DataFrames`
+
+Let's create an 8 row by 3 column matrix, filling it in with values from 1 to 24.
+
+```{r}
+m <- matrix(1:24, nrow=8, ncol=3)
+View(m)
+```
+
+We can access and print a specific element of a matrix by specifying its row and column numbers.
+
+```{r}
+print(m[3,3])
+```
+
+We can also easily replace the values in the matrix. Let's demonstrate this by replacing the values in the first column with `10, 20, 30, 40, 50, 60, 70, 80`
+
+```{r}
+m[,1] <- c(10,20,30,40,50,60,70,80)
+View(m)
+```
+
+Although matrices are quite powerful, you will likely work with a different data structure more often. This structure is called a `DataFrame`. `DataFrames` are powerful, in that you can assign names to the columns (and rows if you like). This allows for much more flexible ways of accessing the data as compared to having to remember which column or row the data that you're interested in is stored. Let's demonstrate how to create and work with a `DataFrame`
+
+```{r}
+col1 <- 1:10
+col2 <-  c("a", "b", "c", "d", "e", "f", "g", "h", "i", "j")
+
+# The rep function is used here to duplicate a string value a specified number of times.
+col3 <- rep("COM830", 10)
+
+# Create a DataFrame called "df" using the three variables that we just created. 
+df <- data.frame(col1, col2, col3)
+
+View(df)
+```
+
+Accessing data in the `DataFrame` can be done in a number of ways. The most straightforward is to use `[]` brackets. For example, we can access the first column using the below syntax:
+
+```{r}
+df["col1"]
+```
+
+As a final step, let's read in an external data file `mtcars.txt` as a `DataFrame` to show how you can import data from other sources into `R`
+
+```{r}
+mtcars <- read.csv(file = "../data/mtcars.txt")
+View(mtcars)
+```

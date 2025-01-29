@@ -1,0 +1,122 @@
+---
+title: "wk2_tutorial"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Week 2 Tutorial
+
+Welcome to the tutorial for Week 2! In this tutorial, we will get familiar with a few functions in R, and will learn a bit about how to work with frequency tables and figures. First, let's read in some data from the `data` directory using the `read.csv()` function built into R. Remember that we assign variables in R using the `<-` operator. Additionally:
+
+-   `head()`: Shows the first 6 rows of a data frame (this can be changed by specifying the number of rows in the function)
+-   `names()`: Returns column names of the data frame
+
+```{r}
+# Read in the data from the csv file
+df <- read.csv("data/mtcars.csv")
+
+# Inspect the first few rows of the data
+head(df)
+
+# View column names
+names(df)
+```
+
+## Accessing Data Elements
+
+Now let's learn how to access specific elements of the data frame.
+
+Notes: - We can access entire columns using the `$` operator followed by the column name. - We can also access specific elements by index using square brackets `[]`. - Remember that R is 1-indexed, meaning that the first element of a vector is at index 1, not 0 like some other languages.
+
+```{r}
+# Access entire columns using the $ operator followed by the column name
+df$brand  # Returns all values in the 'brand' column
+df$mpg    # Returns all values in the 'mpg' column
+
+# Access specific elements by index
+df$brand[1]  # First element of the 'brand' column
+df$brand[10] # Tenth element of the 'brand' column
+```
+
+## Descriptive Statistics
+
+Now let's calculate some descriptive statistics for the `mpg` column. We will calculate the mean, median, and standard deviation of the `mpg` column.
+
+-   `mean()`: The average value (sum divided by count)
+-   `sd()`: Standard Deviation - Measure of spread around the mean
+-   `median()`: Median - The middle value when data is ordered
+-   `summary()`: Provides min, Q1, median, mean, Q3, and max
+
+```{r}
+# Calculate mean (average) of the 'mpg' column
+mean(df$mpg)
+
+# Calculate standard deviation
+sd(df$mpg)
+
+# Calculate median
+median(df$mpg)
+
+# Get comprehensive summary statistics using the `summary()` function
+summary(df$mpg)
+```
+
+Note that we can calculate these statistics across multiple columns at once using the `sapply()` function. This function applies a function to each column of a data frame or matrix. Using the selector `df[,-1]` we can select all columns except the first one. This is especially useful for processing variables in batches.
+
+```{r}
+# Calculate mean, median, and standard deviation for all columns except the first one
+sapply(df[,-1], mean)
+sapply(df[,-1], sd)
+sapply(df[,-1], median)
+```
+
+## Frequency Tables
+
+Now let's create a frequency table for the `mpg` column. We will use the `table()` function to do this.
+
+-   `table()`: Creates a frequency count table
+-   `prop.table()`: Converts frequencies to proportions
+-   Sum of proportions should always equal 1
+
+```{r}
+# Create frequency table
+table(df$mpg)
+
+# Create proportional frequency table
+prop.table(table(df$mpg))
+
+# Verify proportions sum to 1
+sum(prop.table(table(df$mpg)))
+```
+
+# Visualizations
+
+Now let's create some visualizations for the `mpg` column. We will create a histogram and a bar plot.
+
+## Histograms
+
+First, let's create a histogram for the `mpg` column. We will use the `hist()` function to do this. You can change the number of breaks in the histogram by specifying the `breaks` parameter.
+
+```{r}
+# Create histogram
+hist(df$mpg)
+
+# Create histogram with 10 breaks
+hist(df$mpg, breaks = 10)
+
+# Create histogram with 5 breaks
+hist(df$mpg, breaks = 5)
+
+```
+
+Note that when you generate multiple plots in one cell, it'll only show the last one in the "plots" window. To navigate back to previous plots, you can just click the "back" button in the "plots" window.
+
+## Bar Plots
+
+Now let's create a bar plot for the `mpg` column. We will use the `barplot()` function to do this.
+
+```{r}
+# Create bar plot
+barplot(table(df$mpg))
+```

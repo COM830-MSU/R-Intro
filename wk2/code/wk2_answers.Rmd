@@ -1,0 +1,103 @@
+---
+title: "Week 2 Exercise"
+author: "Jacob T. Fisher"
+output: html_document
+---
+
+# Week 2 Exercise
+Now that we've learned some of the basics of applying functions to dataframes, and reading in data, let's try to apply some of these concepts to a new dataset. This week, we'll be working with the `Cholesterol_R` dataset, which is a small dataset of cholesterol levels in patients with rheumatoid arthritis at 3 different time points. The dataset also has a column noting whether or not the patient was assigned to an intervention in which they were asked to switch from butter to margarine.
+
+## Loading the data and exploring the dataset
+
+Load the data
+```{r}
+df <- read.csv("data/Cholesterol_R.csv")
+```
+
+Check out the first few rows of the dataset
+```{r}
+head(df)
+```
+
+Retrieve the column names
+```{r}
+names(df)
+```
+
+Retrieve the `Margarine` column
+```{r}
+df$Margarine
+```
+
+Retrieve the 10th element in the `Margarine` column
+```{r}
+df$Margarine[10]
+```
+
+Sum each row of the `Before`, `After4Weeks` and `After8Weeks` columns, storing the values in a column called `TotalCholesterol`. Tip. do not use `sum()` fuction, instead use a `+` sign
+```{r}
+df$TotalCholesterol <- df$Before + df$After4weeks + df$After8weeks
+```
+
+Add a new participant whose data are (19, 7.23, 6.86, 7.43, 0, 21.52).
+```{r}
+df[19,] <- c(19, 7.23, 6.86, 7.43, 0, 21.52)
+```
+
+Retrieve the new participant's data to see if the data are correctly recorded
+```{r}
+df[19,]
+```
+
+## Descriptive Analysis
+
+Calculate the mean of the `TotalCholesterol` column
+```{r}
+mean(df$TotalCholesterol)
+```
+
+Calculate the variance of the `TotalCholesterol` column
+Tip: Use the `var()` function
+```{r}
+var(df$TotalCholesterol)
+```
+
+Calculate the median of the `TotalCholesterol` column
+```{r}
+median(df$TotalCholesterol)
+```
+
+Generate a summary table of the `TotalCholesterol` column
+```{r}
+summary(df$TotalCholesterol)
+```
+
+Check the quantiles of the `TotalCholesterol` column
+Tip: Use the `quantile()` function
+
+```{r}
+quantile(df$TotalCholesterol)
+```
+
+Use `sapply()` to compute the means of all variables except for `ID` and `Margarine`
+```{r}
+sapply(df[,-c(1, 6)], mean)
+```
+
+## Data Visualization
+
+Create a histogram of the `TotalCholesterol` column with 10 breakpoints
+```{r}
+hist(df$TotalCholesterol, breaks = 10)
+```
+
+Create a boxplot of the `TotalCholesterol` column
+```{r}
+boxplot(df$TotalCholesterol)
+```
+
+Plot a bar graph of the `Margarine` column
+```{r}
+barplot(table(df$Margarine))
+```
+

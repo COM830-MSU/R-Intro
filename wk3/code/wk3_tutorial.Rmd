@@ -1,13 +1,13 @@
 ---
-title: "wk2_tutorial"
+title: "Week 3 Tutorial"
 output: html_document
 editor_options: 
   chunk_output_type: console
 ---
 
-# Week 2 Tutorial
+# Week 3 Tutorial
 
-Welcome to the tutorial for Week 2! In this tutorial, we will get familiar with a few functions in R, and will learn a bit about how to work with frequency tables and figures. First, let's read in some data from the `data` directory using the `read.csv()` function built into R. Remember that we assign variables in R using the `<-` operator. Additionally:
+Welcome to the tutorial for Week 3! In this tutorial, we will get familiar with a few functions in R, and will learn a bit about how to work with frequency tables and figures. First, let's read in some data from the `data` directory using the `read.csv()` function built into R. Remember that we assign variables in R using the `<-` operator. Additionally:
 
 -   `head()`: Shows the first 6 rows of a data frame (this can be changed by specifying the number of rows in the function)
 -   `names()`: Returns column names of the data frame

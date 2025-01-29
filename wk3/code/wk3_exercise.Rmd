@@ -1,10 +1,10 @@
 ---
-title: "Week 2 Exercise"
+title: "Week 3 Exercise"
 author: "Jacob T. Fisher"
 output: html_document
 ---
 
-# Week 2 Exercise
+# Week 3 Exercise
 Now that we've learned some of the basics of applying functions to dataframes, and reading in data, let's try to apply some of these concepts to a new dataset. This week, we'll be working with the `Cholesterol_R` dataset, which is a small dataset of cholesterol levels in patients with rheumatoid arthritis at 3 different time points. The dataset also has a column noting whether or not the patient was assigned to an intervention in which they were asked to switch from butter to margarine.
 
 ## Loading the data and exploring the dataset

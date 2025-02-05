@@ -1,0 +1,109 @@
+---
+title: "Importing and Exporting Data"
+author: "Jacob T. Fisher"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Week 4 Tutorial
+Welcome to the first tutorial for Week 4. In this tutorial, we will be discussing how to import and export data in R. This is a very important skill to have as a data scientist, as you will often need to import data from various sources and export your results to share with others.
+
+## Importing Data
+
+Importing the data...
+
+```{r setup, include=FALSE}
+help(read.csv)
+mydata <- read.csv("wk4/data/mtcars.csv")
+```
+
+Exporting the data...
+
+We will now export the data to a CSV file using the `write.csv` function. If you want to export the data to a different format, you can use the appropriate function (e.g., `write_excel` for Excel files).
+
+```{r}
+write.csv(mydata, "wk4/data/mtcars_output.csv")
+```
+
+Note that if your data is in a different format, you will need to use the appropriate function to import it. For example, if your data is in an Excel file, you can use the `read_excel` function from the `readxl` package.
+
+Note that the `read.csv()` function, and several others, are included in the base distribution of R, but many researchers choose to use the `readr` package for its speed and ease of use. The `readr` package is part of the `tidyverse` collection of packages, which are designed to work together seamlessly. For the remainder of this course, we will be heavily relying on packages from the `tidyverse` as they are designed to work together and make data manipulation and visualization easier. To install the `tidyverse` package, you'll need to type "`install.packages("tidyverse")`" in the R console before continuing.
+
+Importing the data using `readr`...
+
+```{r}
+library(readr)
+mydata <- read_csv("wk4/data/mtcars.csv")
+```
+
+## Inspecting the data
+
+We can inspect the data using the `head()` function like we did last week, which will show us the first few rows of the data frame. We could also use the `glimpse()` function from the `dplyr` package (also in the `tidyverse`), which will show us the first few rows of the data frame as well as the data types of each column.
+```{r}
+head(mydata)
+```
+
+```{r}
+library(dplyr)
+glimpse(mydata)
+```
+
+One of the most useful characters in the `dplyr` package is the pipe operator, `%>%`. This operator allows you to chain together multiple functions in a way that is easy to read and understand. For example, if you wanted to filter the data to only show rows where the `mpg` column is greater than 20, you could do so like this:
+
+```{r}
+mydata %>%
+  filter(mpg > 20)
+```
+
+## Measures of central tendency
+
+```{r}
+mean(mydata$mpg)
+median(mydata$mpg)
+```
+
+Note that R does not have a built-in function for calculating the mode, but you can create your own function to do so. Here is an example of how you could calculate the mode of the `mpg` column:
+
+```{r}
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+mode(mydata$mpg)
+```
+
+Now we can work on calculating the variability of the data. We can calculate the range, variance, and standard deviation of the `mpg` column like this:
+
+```{r}
+range(mydata$mpg)
+var(mydata$mpg)
+sd(mydata$mpg)
+```
+
+# Basic Plotting using `ggplot2`
+Although base R is a powerful plotting tool in its own right, the `ggplot2` package is a more powerful and flexible plotting tool that is part of the `tidyverse`. We will be using `ggplot2` for the remainder of this course, so it is important to become familiar with it. Let's get started. First, we will create a basic histogram of the `mpg` column using the `geom_histogram()` function.
+
+```{r}
+library(ggplot2)
+ggplot(mydata, aes(x = mpg)) +
+  geom_histogram()
+```
+
+Now let's make a violin plot of the same data
+
+```{r}
+ggplot(mydata, aes(x = "", y = mpg)) +
+  geom_violin()
+```
+
+But what if we wanted a violin plot of `mpg` grouped by the number of cylinders in the car? We could use the `factor()` function to convert the `cyl` column to a factor, and then use the `fill` aesthetic to color the violins by the number of cylinders.
+
+```{r}
+ggplot(mydata, aes(x = factor(cyl), y = mpg, fill = factor(cyl))) +
+  geom_violin()
+```
+
+

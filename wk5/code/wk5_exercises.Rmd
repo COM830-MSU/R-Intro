@@ -1,0 +1,157 @@
+---
+title: "Week 5 Exercises: Data Processing and Missing Values"
+author: "Your Name"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Introduction
+
+In this exercise, you'll practice working with the World Values Survey data, focusing on two main areas:
+1. Data processing and management
+2. Handling missing values
+
+# Part 1: Data Processing and Management
+
+First, let's set up our environment and load the necessary packages and data.
+
+## Setup
+
+### Load required packages
+```{r}
+# Your code here:
+```
+
+### Load the data
+
+```{r}
+# Your code here:
+```
+
+## Exercise 1: Working with Variable Labels
+Check the label and labels (value labels) of variable V229.
+
+```{r}
+# Your code here:
+
+```
+
+## Exercise 2: Frequency Distributions
+Generate a frequency table for V229.
+
+```{r}
+# Your code here:
+
+```
+
+## Exercise 3: Subsetting Data - Unemployed
+Create a subset of the data containing only unemployed respondents.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 4: Subsetting Data - Full Time Employment
+Create a subset containing only people with full-time jobs.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 5: Selecting Variables
+Using the data from Exercise 4, create a subset containing only variables V1, V2, V3, V4, V229, and V239.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 6: Variable Information
+Using the data from Exercise 5, check the label and value labels of V239.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 7: Distribution Analysis
+Check the distribution of V239.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 8: Recoding Variables
+Recode V239 according to these rules:
+- Values 1 to 3 become 1
+- Values 4 to 6 become 2
+- All other values become 3
+
+Hint: Use `case_when()`
+
+```{r}
+# Your code here:
+```
+
+## Exercise 9: Checking Recoding
+Check the frequency distribution of your recoded variable.
+
+```{r}
+# Your code here:
+```
+
+# Part 2: Handling Missing Values
+
+## Exercise 10: Variable Selection
+Create a subset of the data containing only variables V9, V10, and V11.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 11: Missing Value Check
+Check whether V9, V10, and V11 contain any missing values.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 12: Impact of Missing Values
+Using your subset from Exercise 10, determine how many cases would be deleted if you removed all rows with any missing values.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 13: Mean Imputation
+Replace missing values in V9 with its mean.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 14: Comparing Means
+Compare the mean of the original V9 with the mean of your new variable without missing values.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 15: Median Imputation
+Replace missing values in V10 with its median.
+
+```{r}
+# Your code here:
+```
+
+## Exercise 16: Comparing Results
+Compare the mean of the original V10 with the mean of your new variable without missing values.
+
+```{r}
+# Your code here:
+```

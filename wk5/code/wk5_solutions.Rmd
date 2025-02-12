@@ -1,0 +1,185 @@
+---
+title: "Week 5 Solutions: Data Processing and Missing Values"
+author: "Your Name"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Introduction
+
+This document contains solutions to the Week 5 exercises on data processing and handling missing values.
+
+# Part 1: Data Processing and Management
+
+## Setup
+### Load required packages
+```{r}
+library(tidyverse)
+library(haven)
+```
+
+### Load the data
+```{r}
+df <- read_spss("data/wvs_6 countries.sav")
+```
+
+## Exercise 1: Working with Variable Labels
+
+```{r}
+# Check label and labels of V229
+attr(df$V229, "label")  # Variable label
+attr(df$V229, "labels")  # Value labels
+```
+
+## Exercise 2: Frequency Distributions
+
+```{r}
+# Generate frequency table for V229
+table(df$V229, useNA = "ifany")
+```
+
+## Exercise 3: Subsetting Data - Unemployed
+
+```{r}
+# Create subset of unemployed respondents
+df_unemployed <- df %>%
+  filter(V229 == 7)  # Assuming 7 is the code for unemployed
+```
+
+## Exercise 4: Subsetting Data - Full Time Employment
+
+```{r}
+# Create subset of full-time employed
+df_fulltime <- df %>%
+  filter(V229 == 1)  # Assuming 1 is the code for full-time employment
+```
+
+## Exercise 5: Selecting Variables
+
+```{r}
+# Select specific variables from full-time employed dataset
+df_subset <- df_fulltime %>%
+  select(V1, V2, V3, V4, V229, V239)
+```
+
+## Exercise 6: Variable Information
+
+```{r}
+# Check label and value labels of V239
+attr(df_subset$V239, "label")
+attr(df_subset$V239, "labels")
+```
+
+## Exercise 7: Distribution Analysis
+
+```{r}
+# Check distribution of V239
+table(df_subset$V239, useNA = "ifany")
+```
+
+## Exercise 8: Recoding Variables
+
+```{r}
+# Recode V239
+df_subset <- df_subset %>%
+  mutate(V239_recoded = case_when(
+    V239 >= 1 & V239 <= 3 ~ 1,
+    V239 >= 4 & V239 <= 6 ~ 2,
+    TRUE ~ 3
+  ))
+```
+
+## Exercise 9: Checking Recoding
+
+```{r}
+# Check frequency of recoded variable
+table(df_subset$V239_recoded, useNA = "ifany")
+```
+
+# Part 2: Handling Missing Values
+
+## Exercise 10: Variable Selection
+
+```{r}
+# Create subset with V9, V10, V11
+df_missing <- df %>%
+  select(V9, V10, V11)
+```
+
+## Exercise 11: Missing Value Check
+
+```{r}
+# Check for missing values
+sapply(df_missing, function(x) sum(is.na(x)))
+```
+
+## Exercise 12: Impact of Missing Values
+
+```{r}
+# Count rows before and after removing missing values
+original_rows <- nrow(df_missing)
+complete_rows <- nrow(na.omit(df_missing))
+cases_lost <- original_rows - complete_rows
+
+print(paste("Original cases:", original_rows))
+print(paste("Cases after removal:", complete_rows))
+print(paste("Cases that would be lost:", cases_lost))
+```
+
+## Exercise 13: Mean Imputation
+
+```{r}
+# Replace missing values in V9 with mean
+library(Hmisc)
+df_missing$V9_mean_imputed <- impute(df_missing$V9, mean)
+```
+
+## Exercise 14: Comparing Means
+
+```{r}
+# Compare means
+original_mean <- mean(df_missing$V9, na.rm = TRUE)
+imputed_mean <- mean(df_missing$V9_mean_imputed)
+
+print(paste("Original mean:", round(original_mean, 2)))
+print(paste("Imputed mean:", round(imputed_mean, 2)))
+```
+
+## Exercise 15: Median Imputation
+
+```{r}
+# Replace missing values in V10 with median
+df_missing$V10_median_imputed <- impute(df_missing$V10, median)
+```
+
+## Exercise 16: Comparing Results
+
+```{r}
+# Compare means
+original_mean_v10 <- mean(df_missing$V10, na.rm = TRUE)
+imputed_mean_v10 <- mean(df_missing$V10_median_imputed)
+
+print(paste("Original mean:", round(original_mean_v10, 2)))
+print(paste("Imputed mean:", round(imputed_mean_v10, 2)))
+```
+
+# Notes on Solutions
+
+Key points to remember:
+1. Always check variable labels and value labels before working with survey data
+2. Use tidyverse functions for clear and readable code
+3. Document the impact of missing value treatments
+4. Validate results after recoding or imputation
+
+Common pitfalls to avoid:
+1. Forgetting to check for missing values
+2. Not documenting value labels
+3. Failing to verify recoding results
+4. Not considering the impact of imputation on your analysis

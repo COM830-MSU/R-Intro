@@ -1,0 +1,351 @@
+---
+title: "Z-Scores and the Normal Distribution - COM 830 Tutorial"
+author: "Jacob Fisher"
+date: "`r format(Sys.time(), '%B %d, %Y')`"  
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(knitr)
+```
+
+# Introduction
+
+This tutorial will cover z-scores and the normal distribution, building
+on the concepts presented in our lecture today. We'll explore how to
+calculate z-scores, interpret them, use the unit normal table, and
+understand the properties of standardized distributions. We will be
+replicating some of the examples used in the lecture, so you can refer
+back to your notes as needed.
+
+## The Problem with Raw Scores
+
+Raw scores alone don't tell us about the relative standing of a data
+point within its distribution. As discussed in the lecture, comparing a
+score of 60 on a history exam to a score of 60 on a physics exam doesn't
+tell us which performance was relatively better. We need a way to
+standardize scores for meaningful comparisons.
+
+## What is a Z-score?
+
+A z-score is a standardized score that indicates how many standard
+deviations a raw score is from the mean of its distribution.
+
+Sign (+/-): A positive z-score means the raw score is above the mean. A
+negative z-score means the raw score is below the mean. Magnitude: The
+absolute value of the z-score indicates the distance from the mean in
+standard deviation units. For example:
+
+z = +2: The raw score is 2 standard deviations above the mean. z = -0.5:
+The raw score is 0.5 standard deviations below the mean. Calculating
+Z-scores
+
+The formula for calculating a z-score is:
+
+$$z = \frac{X-\mu}{\sigma}$$
+
+Where:
+
+-   z = z-score
+-   X = Raw score
+-   μ = Population mean
+-   σ = Population standard deviation
+
+The numerator represents the deviation score. The denominator expresses
+this deviation in standard deviation units.
+
+## Calculating a z-score
+
+Let's say we have a distribution of exam scores with a mean (μ) of 70
+and a standard deviation (σ) of 10. We want to find the z-score for a
+raw score (X) of 85.
+
+X \<- 85 μ \<- 70 σ \<- 10
+
+```{r}
+z <- (85-70)/10
+z
+```
+
+The z-score is **1.5**. This means the raw score of 85 is 1.5 standard
+deviations above the mean.
+
+# Calculating Raw Scores from Z-scores
+
+We can also rearrange the z-score formula to find the raw score (X) if
+we know the z-score, mean, and standard deviation:
+
+$$X = \mu + z\sigma$$ This formula tells us that the raw score is equal
+to the mean plus the product of the z-score and the standard deviation.
+
+## Example Calculation
+
+Using the same distribution (μ = 70, σ = 10), let's find the raw score
+corresponding to a z-score of -0.8.
+
+z = -0.8 μ = 70 σ = 10
+
+```{r}
+X <- (-0.8*10) + 70
+X
+```
+
+The raw score is 62.
+
+# Z-score Distributions
+
+## Properties of Z-Score Distributions
+
+When we convert every raw score in a distribution to a z-score, we
+create a `z-score distribution`. This distribution has some important
+properties:
+
+**Shape:** The z-score distribution has the same shape as the original
+distribution of raw scores. If the original distribution was normal, the
+z-score distribution will also be normal. Mean: The mean of a z-score
+distribution is always 0. Standard Deviation: The standard deviation of
+a z-score distribution is always 1. This process is called
+standardization.
+
+## Using Z-scores for Comparison
+
+The primary benefit of z-scores is that they allow us to compare scores
+from different distributions directly. Because z-scores are on a
+standardized scale (mean = 0, SD = 1), we can assess relative standing
+regardless of the original units of measurement.
+
+From our lecture, suppose our history exam had a mean of 65 and SD of 3
+and our physics exam had a mean of 50 and an SD of 10. Suppose you
+scored a 60 on both. Let's find the z-scores for each exam.
+
+We'll start with history
+
+```{r}
+X_hist <- 60
+mu_hist <- 65
+sigma_hist <- 3
+
+z_hist <- (X_hist-mu_hist)/sigma_hist
+
+z_hist
+```
+
+Now, let's calculate the z-score for the physics exam. Note that I'm
+printing out the value of the variable `z_phys` at the end of the code
+chunk, but you can always look at the value of a variable in the
+`Environment` tab to the right, or by typing the variable's name into
+the console.
+
+```{r}
+X_phys <- 60
+mu_phys <- 50
+sigma_phys <- 10
+
+z_phys <- (X_phys-mu_phys)/sigma_phys
+
+z_phys
+```
+
+Now let's look at the scores in a nice table. I'm using a couple of new
+packages for this, `kable` and `tibble`, which make it easy to create
+tables in R Markdown. You don't need to worry aboout these too much yet,
+but they can be very useful for creating nice-looking tables in your
+reports.
+
+```{r}
+kable(tibble("Exam" = c("History", "Physics"), "Raw Score" = c(X_hist,
+X_phys), "Z-score" = c(z_hist, z_phys)), caption = "Comparison of
+Z-scores") 
+```
+
+As the lecture slides indicate, you performed relatively better on the
+physics test (z = 1) than on the history test (z = -1.67).
+
+# The Normal Distribution
+
+Many variables in the natural and social sciences follow, or closely
+approximate, a normal distribution. The normal distribution is:
+
+**Symmetrical:** Bell-shaped, with equal areas on both sides of the
+mean. Unimodal: It has one peak (mode) at the mean. Defined by μ and σ:
+The mean (μ) and standard deviation (σ) completely determine the shape
+of the normal distribution. Area Represents Probability: The area under
+the normal curve represents probabilities or proportions of scores. In a
+normal distribution, specific z-scores define specific proportions of
+the area under the curve:
+
+Approximately 68% of scores fall within ±1 standard deviation (z = ±1).
+Approximately 95% of scores fall within ±2 standard deviations (z = ±2).
+Over 99% of scores fall within ±3 standard deviations (z = ±3).
+
+## Calculate the density of the normal distribution
+
+Let's create a plot of the standard normal distribution (μ = 0, σ = 1).
+We'll use the `dnorm()` function to calculate the density of the normal
+distribution at different z-scores ranging from -4 to 4. The `seq()`
+function generates a sequence of numbers from -4 to 4 with 200 points in
+between, and the `dnorm()` function calculates the density of the normal
+distribution at each point.
+
+```{r}
+x <- seq(-4, 4, length.out = 200)
+y <- dnorm(x)
+```
+
+Now let's turn this into a dataframe.
+
+```{r}
+df <- data.frame(x = x, y = y)
+```
+
+And plot the distribution
+
+```{r}
+
+```
+
+```{r}
+
+# Create a data frame for the legend
+legend_df <- data.frame(
+  range = c("±1 SD (68%)", "±2 SD (95%)", "±3 SD (99%)"),
+  fill = c("#9897ff", "#c7c6ff", "#eceaff"),  # Use the same fill color
+  alpha = c(0.3, 0.2, 0.1)  # Alpha values matching the ribbons
+)
+
+
+# Create the plot
+ggplot(df, aes(x = x, y = y)) +
+  geom_line() +
+  geom_ribbon(data = subset(df, x > -1 & x < 1), aes(ymin = 0, ymax = y, fill = "±1 SD (68%)"), alpha = 0.3) +
+  geom_ribbon(data = subset(df, x > -2 & x < 2), aes(ymin = 0, ymax = y, fill = "±2 SD (95%)"), alpha = 0.2) +
+  geom_ribbon(data = subset(df, x > -3 & x < 3), aes(ymin = 0, ymax = y, fill = "±3 SD (99%)"), alpha = 0.1) +
+  labs(title = "Normal Distribution with Z-score Ranges",
+       x = "Z-score",
+       y = "Density",
+       fill = "Range") +
+  scale_fill_manual(values = c("±1 SD (68%)" = "#9897ff", "±2 SD (95%)" = "#c7c6ff", "±3 SD (99%)" = "#eceaff")) + 
+  theme_bw() +
+   theme(legend.position = "bottom")
+
+```
+
+# The Unit Normal Table
+
+The unit normal table (also called a z-table) provides a comprehensive
+listing of z-scores and their corresponding proportions in a standard
+normal distribution (μ = 0, σ = 1). This table allows us to:
+
+Find the proportion of scores above or below a given z-score. Find the
+proportion of scores between two z-scores. Find the z-score(s)
+corresponding to a given proportion. We can use R's built in functions
+to do the same thing. pnorm() gives us the cumulative probability (area
+to the left) of a given z-score.
+
+## Example 1: Proportion Above a Z-score
+
+What proportion of scores are above z = 1.25?
+
+```{r}
+1 - pnorm(1.25)
+```
+
+
+This matches the result of around 0.1056 we found by looking it up
+manually in the slides. Note that we use `1 - pnorm(1.25)` because
+`pnorm()` gives the area to the left of the z-score, and we want the
+area to the right.
+
+## Example 2: Z-score for a Percentile
+
+What z-score corresponds to the 90th percentile?
+
+```{r}
+qnorm(0.90) 
+```
+
+The 90th percentile means 90% of scores are below this
+z-score. `qnorm(0.90)` gives us the z-score that cuts off the bottom 90%
+of the distribution, approximately 1.28, just like in the slides.
+
+## Example 3: Proportion Between Two Z-scores
+
+What proportion of scores are between z = -0.5 and z = 1.0?
+
+```{r}
+pnorm(1.0) - pnorm(-0.5) 
+```
+
+We find the area to the left of z = 1.0 and subtract the area to the left of z = -0.5 to get the area between the two z-scores.
+
+# Other Standardized Distributions
+
+The principles of standardization are widely used. Examples include:
+
+**SAT Scores:** Often standardized to μ = 500 and σ = 100. 
+**IQ Scores:** Standardized to μ = 100 and σ = 15. 
+
+Standardization allows for easy comparison and interpretation of scores within these scales.
+
+Creating a standardized distribution involves two steps:
+
+Convert raw scores to z-scores: Use the formula 
+
+$$z=\frac{X-\mu}{\sigma}$$
+To convert z-scores to new X values, use the formula 
+
+$$X = \mu_{new} + z\sigma_{new}$$
+
+Where $$\mu_{new}$$ and $$\sigma_{new}$$ represent the desired mean and standard deviation of the new standardized distribution. 
+
+## Example: Standardizing to IQ Scale
+
+Let's say we have a test with scores that are approximately normally
+distributed, with a mean of 60 and a standard deviation of 5. We want to
+standardize these scores to an IQ-like scale (μ = 100, σ = 15).
+
+First, let's generate some sample data:
+
+```{r}
+set.seed(123) # for reproducibility
+raw_scores <- rnorm(100, mean = 60, sd = 5)
+```
+
+Now, we'll convert these raw scores to z-scores.
+
+```{r}
+z_scores <- (raw_scores - 60) / 5
+head(z_scores)
+```
+
+Finally, we convert the z-scores to the new IQ-like scale:
+
+```{r}
+new_scores <- 100 + (z_scores * 15)
+```
+
+Let's compare the distributions of the raw scores and the new scores.
+
+# Compare the distributions
+
+```{r}
+summary(raw_scores)
+summary(new_scores)
+```
+
+
+We see that the new scores are also normally distributed but now they have the target mean and standard
+deviation.
+
+# Conclusion
+
+Z-scores and the normal distribution are fundamental concepts in statistics. Understanding them is crucial for interpreting data, comparing scores across distributions, and conducting many types of statistical analyses. This tutorial has provided a practical introduction to these topics, with examples in R. Remember to refer to the unit normal table (or R functions like `pnorm()` and `qnorm()`) for finding probabilities and z-scores associated with the normal distribution.

@@ -1,0 +1,251 @@
+---
+title: "Data Processing and Management - COM 830 Tutorial"
+author: "Jacob Fisher"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(haven)
+library(Hmisc)
+library(knitr)
+```
+
+# Introduction
+
+Missing values are a common challenge in data analysis. How we handle them can significantly impact our results. This tutorial will cover:
+
+- How to identify missing values in your data
+- Different ways to check for missing values
+- Strategies for handling missing values
+- Methods for replacing missing values
+
+# Understanding Missing Values in R
+
+In R, missing values are represented by `NA` (Not Available). It's crucial to understand that:
+- `NA` is not the same as zero
+- `NA` is not the same as an empty string ("")
+- `NA` is not the same as `NULL`
+
+Let's explore how to work with missing values using our World Values Survey data.
+
+# Loading the Data
+
+First, let's load our dataset:
+
+```{r load-data}
+df <- read_spss("data/wvs_6 countries.sav")
+```
+
+# Identifying Missing Values
+
+There are several ways to check for missing values in your data. Let's explore each method:
+
+## Method 1: Using table() with useNA
+
+The `table()` function with `useNA = "ifany"` shows us the frequency of all values, including missing ones. We will use this function to check the variable `V4`, which corresponds to the question of how important family is to the respondent. 
+
+```{r check-missing-table}
+# Check distribution including NA values
+table(df$V4, useNA = "ifany")
+
+# Let's create a nicer looking table using kable
+data.frame(table(df$V4, useNA = "ifany")) %>%
+  kable(col.names = c("Value", "Frequency"),
+        caption = "Distribution of V4 including NA values")
+```
+
+Looks like we have 59 missing values in this variable. Let's explore other methods to confirm this.
+
+## Method 2: Using is.na()
+
+The `is.na()` function returns TRUE for missing values and FALSE for non-missing values. Let's use this to check the variable `V242` which corresponds to the respondent's age.
+
+```{r check-missing-isna}
+# Check if values are missing
+missing_values <- table(is.na(df$V212))
+
+# Create a nice looking table
+data.frame(missing_values) %>%
+  kable(col.names = c("Is Missing", "Count"),
+        caption = "Missing Value Summary for V212")
+```
+
+Looks like we have a lot more missing for that variable (933 instead of 59). Let's explore how we can use these tools to check all variables at once.
+
+## Method 3: Checking All Variables at Once
+
+Sometimes we want to see missing values across all variables. Here's how to do this efficiently:
+
+```{r check-all-missing}
+# Create a summary of missing values for each variable
+na_count <- df %>%
+  summarise(across(everything(), ~sum(is.na(.)))) %>%
+  pivot_longer(everything(), 
+              names_to = "var_label", 
+              values_to = "missing_count")
+
+# Get variable labels
+var_labels <- lapply(df, function(x) attributes(x)$label)
+var_labels_df <- plyr::ldply(var_labels, data.frame)
+names(var_labels_df) <- c("var_label", "var_name")
+
+# Combine counts with labels using the `left_join()` function
+na_summary <- na_count %>%
+  left_join(var_labels_df, by = "var_label") %>%
+  arrange(desc(missing_count))
+
+# Show the top 10 variables with most missing values
+na_summary %>%
+  head(10) %>%
+  kable(caption = "Top 10 Variables with Missing Values")
+```
+
+# Handling Missing Values
+
+There are several strategies for dealing with missing values. We'll cover three common approaches:
+
+## Strategy 1: Complete Case Analysis (Listwise Deletion)
+
+This approach removes all cases that have any missing values. While simple, it can lead to a lot of data loss. In this case, you'll notice that we lose **ALL** of the data.
+
+```{r complete-case}
+# Check original dimensions
+dim(df)
+
+# Remove all cases with any missing values
+df_complete <- na.omit(df)
+
+# Check new dimensions
+dim(df_complete)
+
+# Let's see how many cases we lost
+data.frame(
+  "Type" = c("Original", "Complete Cases"),
+  "Cases" = c(nrow(df), nrow(df_complete))
+) %>%
+  kable(caption = "Impact of Complete Case Analysis")
+```
+
+## Strategy 2: Variable-Specific Complete Cases
+
+Sometimes we only want to remove cases with missing values in specific variables. In this case, we'll remove all cases where the value is missing for variables `V240`, `V212`, and `V213`. After applying these criteria, we only lose about 1,000 of our data points.
+
+```{r specific-complete}
+# Select specific variables and remove missing values
+df_subset <- df %>%
+  select(V240, V212, V213) %>%
+  na.omit()
+
+# Check for any remaining missing values
+missing_summary <- sapply(df_subset, function(y) sum(is.na(y)))
+
+# Create summary table
+data.frame(
+  "Variable" = names(missing_summary),
+  "Missing Values" = missing_summary
+) %>%
+  kable(caption = "Missing Values After Subset")
+```
+
+## Strategy 3: Imputation
+
+Imputation involves replacing missing values with estimated values. Common approaches include:
+- Mean imputation
+- Median imputation
+- Constant value imputation
+
+Let's try each approach:
+
+### Mean Imputation
+
+```{r mean-imputation}
+# Original distribution
+original_stats <- data.frame(table(df$V212, useNA = "ifany"))
+
+# Replace missing values with mean
+df$V212_mean <- impute(df$V212, mean)
+
+# New distribution
+mean_imputed_stats <- data.frame(table(df$V212_mean, useNA = "ifany"))
+
+# Compare distributions
+bind_rows(
+  mutate(original_stats, type = "Original"),
+  mutate(mean_imputed_stats, type = "Mean Imputed")
+) %>%
+  kable(caption = "Comparison of Original vs Mean Imputed Values")
+```
+
+This looks okay for some types of analyses, but it can distort relationships between variables, because we now have a new value (2.036) added into our data instead of the imputation fitting into the existing, ordinal scale. Let's try imputing with the median instead.
+
+### Median Imputation
+
+```{r median-imputation}
+# Replace missing values with median
+df$V212_median <- impute(df$V212, median)
+
+# Compare means
+comparison <- data.frame(
+  "Statistic" = c("Mean", "Median"),
+  "Original" = c(mean(df$V212, na.rm = TRUE), median(df$V212, na.rm = TRUE)),
+  "After Imputation" = c(mean(df$V212_median), median(df$V212_median))
+)
+
+kable(comparison, caption = "Impact of Median Imputation on Summary Statistics")
+```
+
+### Constant Value Imputation
+
+Sometimes we might want to replace missing values with a specific value:
+
+```{r constant-imputation}
+# Replace missing values with constant (3)
+df$V212_constant <- impute(df$V212, 3)
+
+# Show distribution
+data.frame(table(df$V212_constant, useNA = "ifany")) %>%
+  kable(col.names = c("Value", "Frequency"),
+        caption = "Distribution After Constant Imputation")
+```
+
+# Best Practices and Considerations
+
+When handling missing values, consider:
+
+1. **Understand the nature of missingness**:
+   - Are values Missing Completely at Random (MCAR)?
+   - Missing at Random (MAR)?
+   - Missing Not at Random (MNAR)?
+
+2. **Document your approach**:
+   - Record what method you used
+   - Note how many cases were affected
+   - Explain why you chose your approach
+
+3. **Consider the impact**:
+   - How much data are you losing?
+   - Are you introducing bias?
+   - Is your approach appropriate for your analysis?
+
+4. **Advanced alternatives**:
+   - Multiple imputation
+   - Maximum likelihood methods
+   - Pattern mixture models
+
+# Conclusion
+
+Handling missing values is a crucial part of data analysis. While there's no one-size-fits-all approach, understanding these basic techniques will help you make informed decisions about how to handle missing data in your research.
+
+Remember that each method has its trade-offs:
+- Complete case analysis is simple but can lose information
+- Mean imputation preserves sample size but reduces variance
+- Median imputation is robust to outliers but can distort relationships
+- More sophisticated methods exist for complex cases
+
+Choose your approach based on your research questions, the nature of your missing data, and the assumptions of your analytical methods.

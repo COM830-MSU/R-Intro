@@ -1,0 +1,217 @@
+---
+title: "Data Processing and Management - COM 830 Tutorial"
+author: "Jacob Fisher"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+  chunk_output_type: console
+---
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(haven)
+library(knitr)
+```
+
+# Introduction
+
+This tutorial covers essential data processing and management techniques
+in R, with a focus on working with survey data from the World Values
+Survey. We'll explore how to:
+
+-   Load and examine SPSS data in R
+-   Work with variable attributes and labels
+-   Subset data efficiently using tidyverse principles
+-   Recode variables
+-   Calculate frequencies and percentages
+
+# Loading and Examining SPSS Data
+
+The World Values Survey data is stored in SPSS format (`.sav`). We'll
+use the `haven` package, which is part of the tidyverse, to read this
+data.
+
+## Load SPSS data
+
+```{r}
+df <- read_spss("data/wvs_6 countries.sav")
+```
+
+## Understanding Variable Attributes
+
+SPSS files contain additional metadata about variables, including:
+
+-   Variable labels (descriptions)
+-   Value labels (mapping of numeric codes to categorical meanings)
+-   Variable types
+
+Let's explore different ways to access this information.
+
+### Method 1: View all attributes of a variable
+
+```{r}
+attributes(df$V2)
+```
+
+### Method 2: Access specific attributes
+
+```{r}
+attr(df$V2, 'label')  # Variable label
+attr(df$V2, 'class')  # Variable class
+attr(df$V2, 'labels') # Value labels
+```
+
+## Extracting Variable Information
+
+For documentation and analysis purposes, we often need to extract all
+variable labels and value labels:
+
+### Get variable labels
+
+Now we will extract information for all of the variables in the dataset.
+Remember that `lapply()` is a function that:
+
+-   Takes a list (or data frame) as input
+-   Applies a function to each element of that list
+-   Returns a list with the results
+
+In simple terms, it's like saying "do this same thing to every piece of
+my data." The `ldply()` function from the `plyr` package is used to
+convert the list into a data frame.
+
+```{r}
+var_labels <- lapply(df, function(x) attributes(x)$label)
+var_labels_df <- plyr::ldply(var_labels, data.frame)
+names(var_labels_df) <- c("Var_Label", "Var_Name")
+```
+
+# Data Subsetting
+
+There are multiple ways to subset data in R. We'll compare base R and
+tidyverse approaches:
+
+## Using Base R
+
+Subset Australian males with all variables
+
+```{r}
+df_aus_male_all <- df[which(df$V2 == 36 & df$V240 == 1),]
+```
+
+Subset with specific columns
+
+```{r}
+df_aus_male <- df[which(df$V2 == 36 & df$V240 == 1), c("V2", "V240")]
+```
+
+## Using Tidyverse
+
+The tidyverse approach is often more readable and maintainable:
+
+Let's take a subset of the data that only contains US respondents (those
+who have the country code `840`)
+
+```{r}
+df_usa <- df %>% 
+  filter(V2 == 840)
+```
+
+Now we will select multiple columns from the dataset, then filter the
+dataset to only contain US respondents. Remember that you can go back to
+your `var_labels_df` to find the variable labels.
+
+```{r}
+df_subset <- df %>% 
+  select(V2, V3, V4, V242) %>% 
+  filter(V2 == 840)
+```
+
+# Variable Recoding
+
+When working with survey data, we often need to recode variables into
+new categories. Before recoding, it's important to examine the original
+distribution:
+
+## Check variable label and frequency distribution
+
+Now we will check the variable label and frequency distribution of
+`V242` (Age) in the dataset:
+
+```{r}
+attr(df$V242, "label")
+freq <- table(df$V242)
+prop.table(freq)
+```
+
+## Visualize the distribution
+
+```{r}
+hist(df$V242, main = "Distribution of Age", xlab = "Age")
+```
+
+## Creating groups based on the "Age" variable
+
+Let's create age groups using a tidyverse approach. We'll define five
+groups: 1-19, 20-29, 30-39, 40-49, and 50+. We will do this using the
+`mutate()` function, which creates a new variable based on a condition.
+The `case_when()` function allows us to specify multiple conditions.
+
+```{r}
+df_agegroup <- df %>%
+  mutate(agegroup = case_when(
+    V242 <= 19 ~ 1,
+    V242 >= 20 & V242 < 30 ~ 2,
+    V242 >= 30 & V242 < 40 ~ 3,
+    V242 >= 40 & V242 < 50 ~ 4,
+    V242 >= 50 ~ 5,
+    TRUE ~ NA_real_
+  ))
+```
+
+### Examining the new grouping
+
+```{r}
+table(df_agegroup$agegroup)
+```
+
+## Calculating Summary Statistics
+
+The tidyverse provides a number of straightforward ways to calculate
+frequencies, percentages, and cumulative percentages:
+
+```{r}
+age_summary <- df %>%
+  count(V242) %>%
+  mutate(
+    percentage = n / sum(n) * 100,
+    cumulative_percentage = cumsum(percentage)
+  )
+```
+
+# Display the first few rows
+
+```{r}
+head(age_summary)
+```
+
+# Best Practices and Tips
+
+Always examine your data before recoding: - Check variable labels and
+value labels - Look at frequency distributions - Visualize when
+appropriate
+
+Document your code: - Include variable labels in comments - Explain the
+purpose of transformations - Note any special cases or missing values
+
+# Conclusion
+
+This tutorial has covered the fundamental aspects of data processing and
+management in R, with a focus on survey data. We've learned how to:
+
+-   Work with SPSS data in R
+-   Access and use variable metadata
+-   Subset data efficiently
+-   Recode variables
+-   Calculate summary statistics

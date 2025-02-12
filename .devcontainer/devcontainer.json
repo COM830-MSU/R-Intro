@@ -1,7 +1,13 @@
 {
     "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
     "features": {
-        "ghcr.io/rocker-org/devcontainer-features/rstudio-server": {}
+        "ghcr.io/rocker-org/devcontainer-features/rstudio-server": {},
+        "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+            "packages": "libudunits2-dev,libxtst6,libxt6,libmagick++-dev"
+        },
+        "ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
+            "packages": "github::rstudio/renv,tidyverse,Hmisc,here,httpgd"
+        }
     },
     "postAttachCommand": {
         "rstudio-start": "rserver"

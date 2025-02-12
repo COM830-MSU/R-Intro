@@ -11,15 +11,13 @@
         "ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
             "packages": "github::rstudio/renv,tidyverse,here,httpgd"
         },
-    "postAttachCommand": {
-        "rstudio-start": "rserver"
     },
-    "forwardPorts": [
-        8787
-    ],
-    "portsAttributes": {
-        "8787": {
-            "label": "RStudio IDE"
+    "customizations": {
+        "vscode": {
+            "extensions": []
+        },
+        "codespaces": {
+            "openFiles": ["README.md"]
         }
     }
 }
